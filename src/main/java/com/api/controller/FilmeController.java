@@ -13,6 +13,7 @@ import com.api.repository.NotaRepository;
 import com.api.repository.UsuarioRepository;
 import com.api.service.FilmeService;
 import com.api.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,12 +42,14 @@ public class FilmeController {
     @Autowired
     FilmeService filmeService;
 
+    @Operation(summary = "Busca os filmes a partir do título")
     @GetMapping("/buscaPorTitulo")
     public ResponseEntity<?> buscarFilme(@RequestParam String titulo){
         ResultadoBusca resposta = omDbFeign.buscaFilme(titulo);
         return resposta.getResponse() ? ResponseEntity.ok().body(resposta.getResultList()) : ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "Retorna as informações de um filme a partir do seu ID")
     @GetMapping("/{id}")
     public ResponseEntity<?> escolherFilme(@PathVariable String id) throws  IllegalArgumentException {
         InformacoesFilme resposta = omDbFeign.selecionaFilme(id);
@@ -54,7 +57,7 @@ public class FilmeController {
         else return ResponseEntity.notFound().build(); //filme não encontrado na API externa
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Adiciona uma nota a um filme")
     @PostMapping("/{idFilme}/avaliar/{idUsuario}")
     public ResponseEntity<?> adicionarNota (@PathVariable Long idUsuario, @PathVariable String idFilme,  @RequestParam int valorNota){
         Usuario usuarioTeste = usuarioRepository.findById(idUsuario).orElseThrow(() -> new ResourceNotFoundException("Não foi encontrado usuário com id = " + idUsuario));
