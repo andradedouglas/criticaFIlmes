@@ -12,6 +12,7 @@ import com.api.repository.FilmeRepository;
 import com.api.repository.UsuarioRepository;
 import com.api.service.ComentarioService;
 import com.api.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -45,12 +46,14 @@ public class ComentarioController {
     @Autowired
     ComentarioService comentarioService;
 
+    @Operation(summary = "Retorna as informações de um comentário a partir do seu ID")
     @GetMapping("/{idComentario}")
     public ResponseEntity<?> exibeComentario (@PathVariable Long idComentario) throws IllegalArgumentException{
         Comentario comentario = comentarioRepository.findById(idComentario).orElseThrow(() -> new ResourceNotFoundException("Não foi encontrado comentário com id = " + idComentario));
          return new ResponseEntity<>(new ComentarioDTO(comentario), HttpStatus.OK);
     }
 
+    @Operation(summary = "Adiciona um novo comentário")
     @PostMapping("/novo")
     @CacheEvict(value = "listaDeComentarios", allEntries = true)
     public ResponseEntity<?> adicionarComentario (@RequestBody ComentarioForm comentarioForm, UriComponentsBuilder uriBuilder){
@@ -63,6 +66,7 @@ public class ComentarioController {
         } else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
+    @Operation(summary = "Adiciona uma resposta a um comentário")
     @PostMapping("/{idComentario}/resposta")
     @CacheEvict(value = "listaDeComentarios", allEntries = true)
     public ResponseEntity<?> adicionarResposta (@PathVariable Long idComentario, @RequestBody ComentarioForm comentarioForm, UriComponentsBuilder uriBuilder){
@@ -75,6 +79,7 @@ public class ComentarioController {
         } else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
+    @Operation(summary = "Lista os comentários de um filme")
     @GetMapping("/{idFilme}/listar")
     @Cacheable(value = "listaDeComentarios")
     public ResponseEntity<?> listaComentarios (@PathVariable String idFilme){
@@ -85,7 +90,7 @@ public class ComentarioController {
         return ResponseEntity.ok().body(comentariosFiltrados);
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Cita um comentário - retorna os seus dados")
     @GetMapping("/{idComentario}/citar/{idUsuario}")
     public ResponseEntity<?> citaComentario (@PathVariable Long idComentario, @PathVariable Long idUsuario){
         Usuario usuarioTeste = usuarioRepository.findById(idUsuario).orElseThrow(() -> new ResourceNotFoundException("Não foi encontrado usuário com id = " + idUsuario));
@@ -94,7 +99,7 @@ public class ComentarioController {
         else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Curte um comentário")
     @PutMapping("/{idComentario}/curtir/{idUsuario}")
     @Transactional
     public ResponseEntity<?> curtirComentario (@PathVariable Long idComentario, @PathVariable Long idUsuario){
@@ -110,7 +115,7 @@ public class ComentarioController {
         } else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Descurte um comentário")
     @PutMapping("/{idComentario}/descurtir/{idUsuario}")
     @Transactional
     public ResponseEntity<?> descurtirComentario (@PathVariable Long idComentario, @PathVariable Long idUsuario){
@@ -126,7 +131,7 @@ public class ComentarioController {
         } else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Exclui um comentário")
     @DeleteMapping("/{idComentario}/excluir/{idUsuario}")
     public ResponseEntity<?> excluirComentario(@PathVariable Long idComentario, @PathVariable Long idUsuario){
         Usuario usuarioTeste = usuarioRepository.findById(idUsuario).orElseThrow(() -> new ResourceNotFoundException("Não foi encontrado usuário com id = " + idUsuario));
@@ -137,7 +142,7 @@ public class ComentarioController {
         }else return ResponseEntity.badRequest().body("Usuário não autorizado");
     }
 
-    // ID USER VIA SESSAO
+    @Operation(summary = "Marca um comentário como repetido")
     @PutMapping("/{idComentario}/repetido/{idUsuario}")
     @Transactional
     public ResponseEntity<?> comentarioRepetido (@PathVariable Long idComentario, @PathVariable Long idUsuario){
